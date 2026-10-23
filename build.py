@@ -85,14 +85,13 @@ def photo(base, name, cls="", label=""):
     """Photo slot: shows assets/photos/<name>.jpg; falls back to a navy panel if the file is absent."""
     if not (ROOT / "assets" / "photos" / f"{name}.jpg").exists():
         return ""
-    bg = f"url({base}assets/photos/{name}.jpg) center/cover no-repeat, linear-gradient(150deg,#13296b,#0a1b45)"
+    bg = f"url({base}assets/photos/{name}.jpg) center 22%/cover no-repeat, linear-gradient(150deg,#13296b,#0a1b45)"
     cap = f'<span class="cap">{label}</span>' if label else ""
     return f'<div class="photo {cls}" role="img" aria-label="{label}" style="background:{bg}">{cap}</div>'
 
 
 def hero_bg(base, name):
-    return (f'style="background:linear-gradient(rgba(10,27,69,.80),rgba(10,27,69,.88)),'
-            f'url({base}assets/photos/{name}.jpg) center/cover no-repeat,linear-gradient(160deg,#0a1b45,#13296b)"')
+    return 'style="background:linear-gradient(160deg,#0a1b45,#13296b)"'
 
 
 def head(title, desc, base):
@@ -221,6 +220,9 @@ def build():
     cities_html = "".join(f'<a class="city" href="areas.html">{c}</a>' for c in CITIES)
     gal = photo(b, "kitchen", "", "Kitchens") + photo(b, "bathroom", "", "Bathrooms") + photo(b, "living", "", "Living spaces")
     gallery = f'<section style="padding-top:0"><div class="wrap"><div class="grid g3 gallery rv">{gal}</div></div></section>' if gal.count("class=\"photo") == 3 else ""
+    tm = "".join(photo(b, f"team{i}", "tall") for i in range(1, 5))
+    team = (f'<section style="background:var(--white);border-block:1px solid var(--line)"><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">Our team</div><h2>Trained, uniformed and trusted</h2>'
+            f'<p class="lead">Courteous professionals who treat your space as their own.</p></div><div class="grid g4 rv">{tm}</div></div></section>') if tm.count('class="photo') == 4 else ""
     home = head(f"{BRAND} | Premium Cleaning Services in the UK's Major Cities",
                 "Luxe Cleaning Co delivers premium domestic, deep, end of tenancy and commercial cleaning across the UK's major cities. Request a quote today.", b)
     home += header(b, "Home")
@@ -243,6 +245,7 @@ def build():
 <ul class="checks"><li>Professional-grade equipment and quality products</li><li>Detailed checklists so nothing is missed</li><li>Clear, honest quotes with no hidden extras</li><li>One-off or regular visits, domestic or commercial</li></ul>
 <a class="btn btn-light" style="margin-top:34px" href="about.html">About us</a></div>
 <div class="grid g2">{why_html}</div></div></section>
+{team}
 <section><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">How it works</div><h2>Effortless from start to finish</h2></div>
 <div class="grid g4">{steps_html}</div></div></section>
 <section style="background:var(--white);border-block:1px solid var(--line)"><div class="wrap center rv"><div class="eyebrow">Where we work</div><h2>Serving the major cities</h2>
@@ -282,7 +285,7 @@ def build():
         inc = "".join(f"<li>{i}</li>" for i in s["includes"])
         p = head(f"{s['name']} | {BRAND}", s["short"] + " Serving the UK's major cities.", sb)
         p += header(sb, "Services") + page_hero(s["name"], s["short"], f'<a href="{sb}index.html">Home</a> / <a href="{sb}services.html">Services</a> / {s["name"]}', sb, s["slug"])
-        p += f"""<section><div class="wrap split" style="align-items:start"><div class="rv"><div class="eyebrow">The service</div><h2>{s['name']}</h2>
+        p += f"""<section><div class="wrap split" style="align-items:start"><div class="rv">{photo(sb, s['slug'], "wide")}<div class="eyebrow" style="margin-top:36px">The service</div><h2>{s['name']}</h2>
 <p style="margin-top:18px;color:var(--muted)">{s['intro']}</p>
 <h3 style="margin-top:34px">What's included</h3><ul class="checks">{inc}</ul>
 <h3 style="margin-top:34px">Ideal for</h3><p style="color:var(--muted);margin-top:8px">{s['ideal']}</p>

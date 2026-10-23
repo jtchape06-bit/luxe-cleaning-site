@@ -223,6 +223,11 @@ def build():
     tm = "".join(photo(b, f"team{i}", "tall") for i in range(1, 5))
     team = (f'<section style="background:var(--white);border-block:1px solid var(--line)"><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">Our team</div><h2>Trained, uniformed and trusted</h2>'
             f'<p class="lead">Courteous professionals who treat your space as their own.</p></div><div class="grid g4 rv">{tm}</div></div></section>') if tm.count('class="photo') == 4 else ""
+    cp = photo(b, "office3", "", "Reception, kept immaculate")
+    commercial = (f'<section><div class="wrap split"><div class="rv">{cp}</div><div class="rv"><div class="eyebrow">For business</div><h2>Workplaces that make a first impression</h2>'
+                  '<p style="margin-top:18px;color:var(--muted)">From boardrooms and reception areas to open-plan floors, we keep offices, clinics and commercial spaces spotless, discreetly and around your working hours.</p>'
+                  '<ul class="checks"><li>Early, evening and weekend schedules</li><li>Floors, glass, desks and washrooms</li><li>Bespoke contracts for your premises</li></ul>'
+                  '<a class="btn btn-gold" style="margin-top:30px" href="services/office-commercial-cleaning.html">Office &amp; commercial cleaning</a></div></div></section>') if cp else ""
     home = head(f"{BRAND} | Premium Cleaning Services in the UK's Major Cities",
                 "Luxe Cleaning Co delivers premium domestic, deep, end of tenancy and commercial cleaning across the UK's major cities. Request a quote today.", b)
     home += header(b, "Home")
@@ -246,6 +251,7 @@ def build():
 <a class="btn btn-light" style="margin-top:34px" href="about.html">About us</a></div>
 <div class="grid g2">{why_html}</div></div></section>
 {team}
+{commercial}
 <section><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">How it works</div><h2>Effortless from start to finish</h2></div>
 <div class="grid g4">{steps_html}</div></div></section>
 <section style="background:var(--white);border-block:1px solid var(--line)"><div class="wrap center rv"><div class="eyebrow">Where we work</div><h2>Serving the major cities</h2>
@@ -283,6 +289,11 @@ def build():
     for s in SERVICES:
         others = [o for o in SERVICES if o is not s][:3]
         inc = "".join(f"<li>{i}</li>" for i in s["includes"])
+        extra = ""
+        if s["slug"] == "office-commercial-cleaning":
+            ex = "".join(photo(sb, f"office{i}") for i in range(2, 6))
+            extra = f'<section><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">In the workplace</div><h2>Spotless from reception to the desks</h2></div><div class="grid g2 rv">{ex}</div></div></section>'
+
         p = head(f"{s['name']} | {BRAND}", s["short"] + " Serving the UK's major cities.", sb)
         p += header(sb, "Services") + page_hero(s["name"], s["short"], f'<a href="{sb}index.html">Home</a> / <a href="{sb}services.html">Services</a> / {s["name"]}', sb, s["slug"])
         p += f"""<section><div class="wrap split" style="align-items:start"><div class="rv">{photo(sb, s['slug'], "wide")}<div class="eyebrow" style="margin-top:36px">The service</div><h2>{s['name']}</h2>
@@ -291,7 +302,7 @@ def build():
 <h3 style="margin-top:34px">Ideal for</h3><p style="color:var(--muted);margin-top:8px">{s['ideal']}</p>
 <p style="margin-top:22px;color:var(--muted)">Available in {', '.join(CITIES[:-1])} and {CITIES[-1]}.</p></div>
 <div class="rv"><h3 style="margin-bottom:18px">Request a quote</h3>{form(sb, s['name'])}</div></div></section>
-<section class="dark"><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">Also from Luxe</div><h2>Other services</h2></div>
+{extra}<section class="dark"><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">Also from Luxe</div><h2>Other services</h2></div>
 <div class="grid g3">{service_cards(sb, others)}</div></div></section>"""
         p += footer(sb)
         write(f"services/{s['slug']}.html", p)

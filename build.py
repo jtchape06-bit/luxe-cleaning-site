@@ -81,6 +81,20 @@ NAV = [("Home", "index.html"), ("About", "about.html"), ("Services", "services.h
        ("Areas", "areas.html"), ("FAQ", "faq.html"), ("Contact", "contact.html")]
 
 
+def photo(base, name, cls="", label=""):
+    """Photo slot: shows assets/photos/<name>.jpg; falls back to a navy panel if the file is absent."""
+    if not (ROOT / "assets" / "photos" / f"{name}.jpg").exists():
+        return ""
+    bg = f"url({base}assets/photos/{name}.jpg) center/cover no-repeat, linear-gradient(150deg,#13296b,#0a1b45)"
+    cap = f'<span class="cap">{label}</span>' if label else ""
+    return f'<div class="photo {cls}" role="img" aria-label="{label}" style="background:{bg}">{cap}</div>'
+
+
+def hero_bg(base, name):
+    return (f'style="background:linear-gradient(rgba(10,27,69,.80),rgba(10,27,69,.88)),'
+            f'url({base}assets/photos/{name}.jpg) center/cover no-repeat,linear-gradient(160deg,#0a1b45,#13296b)"')
+
+
 def head(title, desc, base):
     return f"""<!doctype html>
 <html lang="en-GB">
@@ -90,7 +104,7 @@ def head(title, desc, base):
 <title>{title}</title>
 <meta name="description" content="{desc}">
 <meta name="theme-color" content="#0a1b45">
-<link rel="icon" href="{base}assets/logo-mark.svg" type="image/svg+xml">
+<link rel="icon" href="{base}assets/logo-mark.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
@@ -114,7 +128,7 @@ def header(base, active):
     items.append(f'<li><a class="btn btn-gold" href="{base}contact.html">Get a Quote</a></li>')
     return f"""<div class="topbar">Premium cleaning across the UK's major cities · <a href="mailto:{EMAIL}">{EMAIL}</a></div>
 <header class="site"><div class="wrap nav">
-<a class="brand" href="{base}index.html" aria-label="{BRAND} home"><img src="{base}assets/logo-mark.svg" alt=""><span class="brand-text"><b>LUXE</b><small>CLEANING CO</small></span></a>
+<a class="brand" href="{base}index.html" aria-label="{BRAND} home"><img src="{base}assets/logo-mark.png" alt=""><span class="brand-text"><b>LUXE</b><small>CLEANING CO</small></span></a>
 <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
 <nav class="main" aria-label="Main"><ul>{''.join(items)}</ul></nav>
 </div></header>
@@ -128,7 +142,7 @@ def footer(base):
     return f"""</main>
 <footer class="site"><div class="wrap">
 <div class="foot">
-<div><a class="brand" href="{base}index.html"><img src="{base}assets/logo-mark.svg" alt=""><span class="brand-text"><b>LUXE</b><small>CLEANING CO</small></span></a>
+<div><a class="brand" href="{base}index.html"><img src="{base}assets/logo-mark.png" alt=""><span class="brand-text"><b>LUXE</b><small>CLEANING CO</small></span></a>
 <p style="margin-top:18px;max-width:34ch">Premium cleaning for homes and businesses. Immaculate results, delivered with care.</p>
 <p style="margin-top:14px"><a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
 <div><h4>Services</h4><ul>{svc}<li><a href="{base}services.html">View all →</a></li></ul></div>
@@ -142,15 +156,15 @@ def footer(base):
 """
 
 
-def page_hero(title, sub, crumbs):
-    return f"""<section class="page-hero"><div class="wrap">
+def page_hero(title, sub, crumbs, base="", img="hero"):
+    return f"""<section class="page-hero" {hero_bg(base, img)}><div class="wrap">
 <div class="crumbs">{crumbs}</div>
 <h1>{title}</h1><p>{sub}</p></div></section>
 """
 
 
 def cta(base, text="Request your free, no-obligation quote today."):
-    return f"""<section class="cta"><div class="wrap rv">
+    return f"""<section class="cta" {hero_bg(base, "cta")}><div class="wrap rv">
 <div class="eyebrow" style="justify-content:center;color:var(--gold-light)">Ready when you are</div>
 <h2>Experience the Luxe difference</h2><p>{text}</p>
 <a class="btn btn-gold" href="{base}contact.html">Get a Quote</a></div></section>
@@ -205,6 +219,8 @@ def build():
              ("Enjoy", "Return to a flawless space and relax.")]
     steps_html = "".join(f'<div class="card rv"><div class="ico">{i+1}</div><h3>{t}</h3><p>{d}</p></div>' for i, (t, d) in enumerate(steps))
     cities_html = "".join(f'<a class="city" href="areas.html">{c}</a>' for c in CITIES)
+    gal = photo(b, "kitchen", "", "Kitchens") + photo(b, "bathroom", "", "Bathrooms") + photo(b, "living", "", "Living spaces")
+    gallery = f'<section style="padding-top:0"><div class="wrap"><div class="grid g3 gallery rv">{gal}</div></div></section>' if gal.count("class=\"photo") == 3 else ""
     home = head(f"{BRAND} | Premium Cleaning Services in the UK's Major Cities",
                 "Luxe Cleaning Co delivers premium domestic, deep, end of tenancy and commercial cleaning across the UK's major cities. Request a quote today.", b)
     home += header(b, "Home")
@@ -214,12 +230,13 @@ def build():
 <p class="lead">Luxe Cleaning Co brings a refined, meticulous standard of cleaning to homes and businesses across the UK's major cities. Spotless results, elegant service.</p>
 <div class="hero-cta"><a class="btn btn-gold" href="contact.html">Get a Free Quote</a><a class="btn btn-line" href="services.html">Explore Services</a></div>
 <div class="trust"><div><i>✦</i> Fully equipped</div><div><i>✦</i> Flexible scheduling</div><div><i>✦</i> Satisfaction promised</div></div></div>
-<div class="hero-art"><span class="sparkle s1">✦</span><span class="sparkle s2">✦</span><span class="sparkle s3">✦</span><img src="assets/logo-mark.svg" alt="Luxe Cleaning Co emblem"></div>
+<div class="logo-card"><img src="assets/logo-full.png" alt="Luxe Cleaning Co"></div>
 </div></section>
 <section><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">Our services</div><h2>Cleaning crafted to perfection</h2>
 <p class="lead">From everyday home care to specialist commercial cleans, discover a service designed around you.</p></div>
 <div class="grid g3">{service_cards(b, SERVICES[:6])}</div>
 <div class="center rv" style="margin-top:44px"><a class="btn btn-line" href="services.html">View all services</a></div></div></section>
+{gallery}
 <section class="dark"><div class="wrap split">
 <div class="rv"><div class="eyebrow">Why Luxe</div><h2>The standard your space deserves</h2>
 <p class="lead" style="margin-top:18px">We believe cleaning is a craft. Our approach blends professional technique with a genuinely personal service.</p>
@@ -236,7 +253,7 @@ def build():
 
     # ---------- About ----------
     p = head(f"About Us | {BRAND}", "Learn about Luxe Cleaning Co: our values, our approach and our commitment to premium cleaning.", b)
-    p += header(b, "About") + page_hero("About Luxe Cleaning Co", "Premium cleaning with a personal touch.", '<a href="index.html">Home</a> / About')
+    p += header(b, "About") + page_hero("About Luxe Cleaning Co", "Premium cleaning with a personal touch.", '<a href="index.html">Home</a> / About', b, "about")
     vals = [("Excellence", "We hold ourselves to a high, consistent standard on every visit."),
             ("Integrity", "Honest quotes, reliable timekeeping and respect for your property."),
             ("Care", "We treat your space as we would our own, with discretion and courtesy."),
@@ -246,7 +263,7 @@ def build():
 <p style="margin-top:20px;color:var(--muted)">Luxe Cleaning Co was created with a simple belief: a clean space should feel like a luxury. We combine professional methods with an eye for detail and a warm, dependable service to deliver results our clients are proud of.</p>
 <p style="margin-top:16px;color:var(--muted)">Whether it's a family home, a city apartment, a rental property or a busy office, we tailor every clean to the space and the person behind it. Our team arrives fully equipped, works carefully and leaves things immaculate.</p>
 <ul class="checks"><li>Homes and businesses in the UK's major cities</li><li>Regular, one-off and bespoke cleaning</li><li>Quality products and professional equipment</li></ul></div>
-<div class="hero-art rv" style="max-width:420px;margin-inline:auto"><span class="sparkle s1">✦</span><span class="sparkle s2">✦</span><img src="assets/logo-mark.svg" alt="Luxe Cleaning Co emblem"></div></div></section>
+<div class="rv">{photo(b, "about", "tall", "Our team at work") or '<div class="logo-card"><img src="assets/logo-full.png" alt="Luxe Cleaning Co"></div>'}</div></div></section>
 <section class="dark"><div class="wrap"><div class="sec-head center rv"><div class="eyebrow">Our values</div><h2>What we stand for</h2></div><div class="grid g4">{vh}</div></div></section>
 {cta(b)}"""
     p += footer(b)
@@ -264,7 +281,7 @@ def build():
         others = [o for o in SERVICES if o is not s][:3]
         inc = "".join(f"<li>{i}</li>" for i in s["includes"])
         p = head(f"{s['name']} | {BRAND}", s["short"] + " Serving the UK's major cities.", sb)
-        p += header(sb, "Services") + page_hero(s["name"], s["short"], f'<a href="{sb}index.html">Home</a> / <a href="{sb}services.html">Services</a> / {s["name"]}')
+        p += header(sb, "Services") + page_hero(s["name"], s["short"], f'<a href="{sb}index.html">Home</a> / <a href="{sb}services.html">Services</a> / {s["name"]}', sb, s["slug"])
         p += f"""<section><div class="wrap split" style="align-items:start"><div class="rv"><div class="eyebrow">The service</div><h2>{s['name']}</h2>
 <p style="margin-top:18px;color:var(--muted)">{s['intro']}</p>
 <h3 style="margin-top:34px">What's included</h3><ul class="checks">{inc}</ul>
